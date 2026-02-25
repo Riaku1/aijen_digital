@@ -3,42 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aijen Digital</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Interactive Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header { background: #4CAF50; padding: 10px; color: white; text-align: center; }
+        .content { padding: 20px; }
+        .button {
+            background-color: #008CBA;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button:hover { background-color: #005f73; }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Welcome to Aijen Digital</h1>
-        <nav>
-            <ul>
-                <li><a href="#about">About</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
+        <h1>Welcome to My Interactive Page</h1>
     </header>
-    <main>
-        <section id="about">
-            <h2>About Us</h2>
-            <p>Aijen Digital is a leading provider of digital solutions, allowing businesses to thrive in the digital age.</p>
-        </section>
-        <section id="services">
-            <h2>Our Services</h2>
-            <ul>
-                <li>Web Development</li>
-                <li>SEO Optimization</li>
-                <li>Digital Marketing</li>
-                <li>Content Creation</li>
-            </ul>
-        </section>
-        <section id="contact">
-            <h2>Contact Us</h2>
-            <p>Email: info@aijendigital.com</p>
-            <p>Phone: +123-456-7890</p>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2026 Aijen Digital. All rights reserved.</p>
-    </footer>
+    <div class="content">
+        <p>This page features improved dynamic HTML structure, animations, and interactivity!</p>
+        <button class="button" onclick="showMessage()">Click Me!</button>
+        <p id="message" style="display:none;">Hello! This is an interactive message.</p>
+    </div>
+    <script>
+        function showMessage() {
+            const message = document.getElementById('message');
+            message.style.display = 'block';
+            message.style.animation = 'fadeIn 0.5s';
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
 </body>
 </html>
