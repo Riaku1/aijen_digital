@@ -3,48 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Page</title>
+    <title>AIJEN DIGITAL | 3D Experience</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        header { background: #4CAF50; padding: 10px; color: white; text-align: center; }
-        .content { padding: 20px; }
-        .button {
-            background-color: #008CBA;
-            border: none;
-            color: white;
-            padding: 15px 32px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .button:hover { background-color: #005f73; }
+        body { margin: 0; overflow: hidden; background-color: #050505; color: white; font-family: 'Inter', sans-serif; }
+        canvas { display: block; }
+        .hud { pointer-events: none; position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 2rem; z-index: 10; }
+        .interactive { pointer-events: auto; }
+        .glitch-text { text-transform: uppercase; letter-spacing: 0.3em; font-weight: 900; }
+        .pillar-label { position: absolute; transform: translate(-50%, -50%); pointer-events: none; transition: opacity 0.3s; opacity: 0; }
+        #loading { position: fixed; inset: 0; background: black; display: flex; align-items: center; justify-content: center; z-index: 100; flex-direction: column; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to My Interactive Page</h1>
-    </header>
-    <div class="content">
-        <p>This page features improved dynamic HTML structure, animations, and interactivity!</p>
-        <button class="button" onclick="showMessage()">Click Me!</button>
-        <p id="message" style="display:none;">Hello! This is an interactive message.</p>
+
+    <div id="loading">
+        <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <div class="glitch-text text-sm">Initializing Aijen Engine...</div>
     </div>
+
+    <div class="hud">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="glitch-text text-2xl mb-1">Aijen Digital <span class="text-blue-500 italic">Inc.</span></h1>
+                <div class="text-[10px] text-zinc-500 uppercase tracking-widest">Optimizing for Profit | 3D v1.0</div>
+            </div>
+            <div class="interactive flex gap-6 text-[10px] font-bold uppercase tracking-widest">
+                <a href="#" class="hover:text-blue-500 transition-colors">Enterprise</a>
+                <a href="#" class="hover:text-blue-500 transition-colors">VR Lab</a>
+                <a href="#" class="hover:text-blue-500 transition-colors">Dashboard</a>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-end">
+            <div class="max-w-md">
+                <div id="content-display" class="animate-pulse">
+                    <h2 class="text-4xl font-black mb-4 uppercase leading-none" id="active-title">System Standby</h2>
+                    <p class="text-zinc-400 text-sm leading-relaxed" id="active-desc">Rotate the engine core to explore Aijen's service pillars. Click or drag to interact.</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-[10px] text-zinc-600 uppercase mb-2">Network Status</div>
+                <div class="flex items-center gap-2 justify-end">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
+                    <span class="text-blue-400 text-xs font-mono">ENCRYPTED_LINK_ACTIVE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function showMessage() {
-            const message = document.getElementById('message');
-            message.style.display = 'block';
-            message.style.animation = 'fadeIn 0.5s';
+        let scene, camera, renderer, particles, core, rings = [];
+        let mouseX = 0, mouseY = 0;
+        let targetX = 0, targetY = 0;
+
+        const pillars = [
+            { title: "Software Dev", desc: "Enterprise-grade digital engines built for scale and Ugandan market efficiency.", color: 0x2563eb },
+            { title: "Networking", desc: "Secure, high-bandwidth infrastructure. LAN/WAN optimization for corporate SMEs.", color: 0x3b82f6 },
+            { title: "VR Training", desc: "Immersive 3D environments for high-impact corporate training and marketing.", color: 0x60a5fa },
+            { title: "Data Insights", desc: "Advanced database architecture. Turning raw metrics into actionable profit strategy.", color: 0x1d4ed8 }
+        ];
+
+        window.onload = function() {
+            init();
+            animate();
+            document.getElementById('loading').style.display = 'none';
+        };
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            // Create Core (The "Engine")
+            const coreGeom = new THREE.IcosahedronGeometry(1.2, 0);
+            const coreMat = new THREE.MeshPhongMaterial({ 
+                color: 0x2563eb, 
+                wireframe: true,
+                emissive: 0x1e3a8a,
+                emissiveIntensity: 0.5
+            });
+            core = new THREE.Mesh(coreGeom, coreMat);
+            scene.add(core);
+
+            // Add inner core glow
+            const innerGeom = new THREE.SphereGeometry(0.5, 32, 32);
+            const innerMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const innerSphere = new THREE.Mesh(innerGeom, innerMat);
+            core.add(innerSphere);
+
+            // Create Orbiting Rings
+            for(let i = 0; i < 4; i++) {
+                const ringGeom = new THREE.TorusGeometry(2 + (i * 0.4), 0.01, 16, 100);
+                const ringMat = new THREE.MeshBasicMaterial({ color: 0x222222, transparent: true, opacity: 0.5 });
+                const ring = new THREE.Mesh(ringGeom, ringMat);
+                ring.rotation.x = Math.random() * Math.PI;
+                ring.rotation.y = Math.random() * Math.PI;
+                rings.push(ring);
+                scene.add(ring);
+
+                // Add "Data Nodes" to rings
+                const nodeGeom = new THREE.SphereGeometry(0.05, 8, 8);
+                const nodeMat = new THREE.MeshBasicMaterial({ color: pillars[i].color });
+                const node = new THREE.Mesh(nodeGeom, nodeMat);
+                node.position.x = 2 + (i * 0.4);
+                ring.add(node);
+            }
+
+            // Particle Starfield
+            const starGeom = new THREE.BufferGeometry();
+            const starCount = 2000;
+            const posArray = new Float32Array(starCount * 3);
+            for(let i = 0; i < starCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 20;
+            }
+            starGeom.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const starMat = new THREE.PointsMaterial({ size: 0.005, color: 0xffffff });
+            particles = new THREE.Points(starGeom, starMat);
+            scene.add(particles);
+
+            // Lighting
+            const light = new THREE.PointLight(0xffffff, 1, 100);
+            light.position.set(10, 10, 10);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040));
+
+            // Interaction listeners
+            document.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('mousedown', () => {
+                core.scale.set(1.1, 1.1, 1.1);
+                cycleContent();
+            });
+            document.addEventListener('mouseup', () => core.scale.set(1, 1, 1));
+        }
+
+        let pillarIndex = 0;
+        function cycleContent() {
+            const p = pillars[pillarIndex];
+            document.getElementById('active-title').innerText = p.title;
+            document.getElementById('active-desc').innerText = p.desc;
+            core.material.color.setHex(p.color);
+            pillarIndex = (pillarIndex + 1) % pillars.length;
+        }
+
+        function onMouseMove(event) {
+            mouseX = (event.clientX - window.innerWidth / 2) / 100;
+            mouseY = (event.clientY - window.innerHeight / 2) / 100;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            targetX = mouseX * 0.5;
+            targetY = mouseY * 0.5;
+
+            // Rotate core based on mouse
+            core.rotation.y += 0.01;
+            core.rotation.x += 0.005;
+            
+            scene.rotation.y += 0.1 * (targetX - scene.rotation.y);
+            scene.rotation.x += 0.1 * (targetY - scene.rotation.x);
+
+            // Rotate rings
+            rings.forEach((ring, i) => {
+                ring.rotation.z += 0.01 * (i + 1);
+            });
+
+            // Particles drift
+            particles.rotation.y += 0.001;
+
+            renderer.render(scene, camera);
         }
     </script>
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
 </body>
-</html>
+                </html>
+                                                                                        
