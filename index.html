@@ -3,72 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIJEN DIGITAL | 3D Experience</title>
+    <title>AIJEN DIGITAL | 3D Engine v2.0</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Post-processing effect shaders -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #050505; color: white; font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&display=swap');
+        body { margin: 0; overflow: hidden; background-color: #000; color: white; font-family: 'Space Grotesk', sans-serif; }
         canvas { display: block; }
-        .hud { pointer-events: none; position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 2rem; z-index: 10; }
+        .hud { pointer-events: none; position: absolute; inset: 0; padding: 3rem; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; }
         .interactive { pointer-events: auto; }
-        .glitch-text { text-transform: uppercase; letter-spacing: 0.3em; font-weight: 900; }
-        .pillar-label { position: absolute; transform: translate(-50%, -50%); pointer-events: none; transition: opacity 0.3s; opacity: 0; }
-        #loading { position: fixed; inset: 0; background: black; display: flex; align-items: center; justify-content: center; z-index: 100; flex-direction: column; }
+        .text-glow { text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        #bg-overlay { position: fixed; inset: 0; background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%); pointer-events: none; z-index: 1; transition: background 1s ease; }
+        .content-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(20px); opacity: 0; }
+        .content-card.active { transform: translateY(0); opacity: 1; }
+        .progress-bar { height: 2px; background: rgba(255,255,255,0.1); width: 100%; position: relative; overflow: hidden; }
+        .progress-inner { height: 100%; background: #3b82f6; width: 0%; transition: width 0.5s ease; }
     </style>
 </head>
 <body>
 
-    <div id="loading">
-        <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <div class="glitch-text text-sm">Initializing Aijen Engine...</div>
-    </div>
+    <div id="bg-overlay"></div>
 
     <div class="hud">
-        <div class="flex justify-between items-start">
-            <div>
-                <h1 class="glitch-text text-2xl mb-1">Aijen Digital <span class="text-blue-500 italic">Inc.</span></h1>
-                <div class="text-[10px] text-zinc-500 uppercase tracking-widest">Optimizing for Profit | 3D v1.0</div>
+        <!-- Top Nav -->
+        <div class="flex justify-between items-start animate-in fade-in slide-in-from-top-4 duration-1000">
+            <div class="interactive">
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="w-8 h-8 bg-blue-600 flex items-center justify-center font-bold italic text-white">A</div>
+                    <h1 class="font-bold tracking-tighter text-xl uppercase">Aijen <span class="text-blue-500 font-light text-glow">Intelligence</span></h1>
+                </div>
+                <div class="text-[10px] text-zinc-500 tracking-[0.4em] uppercase font-bold">Formalized Tech Engine // UGANDA</div>
             </div>
-            <div class="interactive flex gap-6 text-[10px] font-bold uppercase tracking-widest">
-                <a href="#" class="hover:text-blue-500 transition-colors">Enterprise</a>
-                <a href="#" class="hover:text-blue-500 transition-colors">VR Lab</a>
-                <a href="#" class="hover:text-blue-500 transition-colors">Dashboard</a>
+            <div class="interactive flex gap-8 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                <button class="hover:text-blue-400 transition-all cursor-pointer">Network Node</button>
+                <button class="hover:text-blue-400 transition-all cursor-pointer">VR Training Lab</button>
+                <div class="px-3 py-1 bg-blue-600/10 border border-blue-500/20 text-blue-400 rounded">v2.0_LIVE</div>
             </div>
         </div>
 
+        <!-- Main Display -->
         <div class="flex justify-between items-end">
-            <div class="max-w-md">
-                <div id="content-display" class="animate-pulse">
-                    <h2 class="text-4xl font-black mb-4 uppercase leading-none" id="active-title">System Standby</h2>
-                    <p class="text-zinc-400 text-sm leading-relaxed" id="active-desc">Rotate the engine core to explore Aijen's service pillars. Click or drag to interact.</p>
+            <div class="max-w-xl interactive content-card" id="card">
+                <div class="flex items-center gap-4 mb-4">
+                    <div id="service-index" class="text-blue-500 font-bold text-lg border-b-2 border-blue-600">01</div>
+                    <div class="progress-bar w-32"><div id="p-bar" class="progress-inner"></div></div>
                 </div>
+                <h2 class="text-6xl font-black mb-6 uppercase tracking-tighter leading-none" id="title">Initializing...</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed mb-8" id="desc">Connecting to the Aijen Digital neural network. Standby for operational synchronization.</p>
+                <button onclick="cycle()" class="group flex items-center gap-4 bg-white/5 hover:bg-blue-600 border border-white/10 hover:border-blue-400 p-4 rounded-xl transition-all duration-300">
+                    <span class="text-xs font-bold tracking-widest uppercase">Next Pillar</span>
+                    <div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                </button>
             </div>
-            <div class="text-right">
-                <div class="text-[10px] text-zinc-600 uppercase mb-2">Network Status</div>
-                <div class="flex items-center gap-2 justify-end">
-                    <span class="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
-                    <span class="text-blue-400 text-xs font-mono">ENCRYPTED_LINK_ACTIVE</span>
+
+            <!-- Side Metrics -->
+            <div class="hidden md:block text-right space-y-6">
+                <div>
+                    <div class="text-[10px] text-zinc-600 uppercase font-bold tracking-widest mb-1">Compute Load</div>
+                    <div class="text-xl font-mono text-blue-400">88.4%_SYNC</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-zinc-600 uppercase font-bold tracking-widest mb-1">Operational Tier</div>
+                    <div class="text-xl font-mono">FORMALIZED_ENT</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let scene, camera, renderer, particles, core, rings = [];
+        let scene, camera, renderer, composer, core, particles, rings = [];
         let mouseX = 0, mouseY = 0;
-        let targetX = 0, targetY = 0;
+        let index = 0;
 
-        const pillars = [
-            { title: "Software Dev", desc: "Enterprise-grade digital engines built for scale and Ugandan market efficiency.", color: 0x2563eb },
-            { title: "Networking", desc: "Secure, high-bandwidth infrastructure. LAN/WAN optimization for corporate SMEs.", color: 0x3b82f6 },
-            { title: "VR Training", desc: "Immersive 3D environments for high-impact corporate training and marketing.", color: 0x60a5fa },
-            { title: "Data Insights", desc: "Advanced database architecture. Turning raw metrics into actionable profit strategy.", color: 0x1d4ed8 }
+        const services = [
+            { 
+                title: "Software Dev", 
+                desc: "Custom-built enterprise engines designed for scale. We bridge the gap between complex logic and business profit in the East African market.", 
+                color: 0x2563eb,
+                bg: 'radial-gradient(circle at center, rgba(37, 99, 235, 0.15) 0%, black 100%)'
+            },
+            { 
+                title: "Networking", 
+                desc: "Secure, high-speed LAN/WAN infrastructure. We provide networking audits and 99.9% uptime maintenance for corporate SMEs.", 
+                color: 0x3b82f6,
+                bg: 'radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, black 100%)'
+            },
+            { 
+                title: "Immersive VR", 
+                desc: "Proprietary VR training demos for the Ugandan market. We create interactive 3D environments for high-impact marketing and corporate visualization.", 
+                color: 0x60a5fa,
+                bg: 'radial-gradient(circle at center, rgba(96, 165, 250, 0.15) 0%, black 100%)'
+            },
+            { 
+                title: "Data Systems", 
+                desc: "Advanced database management and analytics. We turn fragmented IT systems into actionable, data-driven decision engines.", 
+                color: 0x1d4ed8,
+                bg: 'radial-gradient(circle at center, rgba(29, 78, 216, 0.15) 0%, black 100%)'
+            }
         ];
 
         window.onload = function() {
             init();
             animate();
-            document.getElementById('loading').style.display = 'none';
+            cycle(); // Initial load
+            document.getElementById('card').classList.add('active');
         };
 
         function init() {
@@ -76,118 +124,122 @@
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.z = 5;
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
             document.body.appendChild(renderer.domElement);
 
-            // Create Core (The "Engine")
-            const coreGeom = new THREE.IcosahedronGeometry(1.2, 0);
+            // Post Processing for Bloom (Glow)
+            const renderScene = new THREE.RenderPass(scene, camera);
+            const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+            bloomPass.threshold = 0.2;
+            bloomPass.strength = 1.2;
+            bloomPass.radius = 0.5;
+
+            composer = new THREE.EffectComposer(renderer);
+            composer.addPass(renderScene);
+            composer.addPass(bloomPass);
+
+            // Core Engine (Icosahedron)
+            const coreGeom = new THREE.IcosahedronGeometry(1.5, 1);
             const coreMat = new THREE.MeshPhongMaterial({ 
                 color: 0x2563eb, 
                 wireframe: true,
-                emissive: 0x1e3a8a,
-                emissiveIntensity: 0.5
+                transparent: true,
+                opacity: 0.8
             });
             core = new THREE.Mesh(coreGeom, coreMat);
             scene.add(core);
 
-            // Add inner core glow
-            const innerGeom = new THREE.SphereGeometry(0.5, 32, 32);
+            // Inner core glow sphere
+            const innerGeom = new THREE.SphereGeometry(0.6, 32, 32);
             const innerMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const innerSphere = new THREE.Mesh(innerGeom, innerMat);
-            core.add(innerSphere);
+            const innerCore = new THREE.Mesh(innerGeom, innerMat);
+            core.add(innerCore);
 
-            // Create Orbiting Rings
-            for(let i = 0; i < 4; i++) {
-                const ringGeom = new THREE.TorusGeometry(2 + (i * 0.4), 0.01, 16, 100);
-                const ringMat = new THREE.MeshBasicMaterial({ color: 0x222222, transparent: true, opacity: 0.5 });
+            // Rings
+            for(let i = 0; i < 3; i++) {
+                const ringGeom = new THREE.TorusGeometry(2.5 + (i * 0.5), 0.02, 16, 100);
+                const ringMat = new THREE.MeshBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.3 });
                 const ring = new THREE.Mesh(ringGeom, ringMat);
                 ring.rotation.x = Math.random() * Math.PI;
                 ring.rotation.y = Math.random() * Math.PI;
                 rings.push(ring);
                 scene.add(ring);
-
-                // Add "Data Nodes" to rings
-                const nodeGeom = new THREE.SphereGeometry(0.05, 8, 8);
-                const nodeMat = new THREE.MeshBasicMaterial({ color: pillars[i].color });
-                const node = new THREE.Mesh(nodeGeom, nodeMat);
-                node.position.x = 2 + (i * 0.4);
-                ring.add(node);
             }
 
-            // Particle Starfield
+            // Starfield
             const starGeom = new THREE.BufferGeometry();
-            const starCount = 2000;
+            const starCount = 3000;
             const posArray = new Float32Array(starCount * 3);
             for(let i = 0; i < starCount * 3; i++) {
                 posArray[i] = (Math.random() - 0.5) * 20;
             }
             starGeom.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-            const starMat = new THREE.PointsMaterial({ size: 0.005, color: 0xffffff });
+            const starMat = new THREE.PointsMaterial({ size: 0.008, color: 0x444444 });
             particles = new THREE.Points(starGeom, starMat);
             scene.add(particles);
 
-            // Lighting
-            const light = new THREE.PointLight(0xffffff, 1, 100);
-            light.position.set(10, 10, 10);
-            scene.add(light);
-            scene.add(new THREE.AmbientLight(0x404040));
+            // Lights
+            const pLight = new THREE.PointLight(0xffffff, 1, 100);
+            pLight.position.set(5, 5, 5);
+            scene.add(pLight);
+            scene.add(new THREE.AmbientLight(0x222222));
 
-            // Interaction listeners
-            document.addEventListener('mousemove', onMouseMove);
-            window.addEventListener('resize', onWindowResize);
-            document.addEventListener('mousedown', () => {
-                core.scale.set(1.1, 1.1, 1.1);
-                cycleContent();
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+                mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
             });
-            document.addEventListener('mouseup', () => core.scale.set(1, 1, 1));
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                composer.setSize(window.innerWidth, window.innerHeight);
+            });
         }
 
-        let pillarIndex = 0;
-        function cycleContent() {
-            const p = pillars[pillarIndex];
-            document.getElementById('active-title').innerText = p.title;
-            document.getElementById('active-desc').innerText = p.desc;
-            core.material.color.setHex(p.color);
-            pillarIndex = (pillarIndex + 1) % pillars.length;
-        }
+        function cycle() {
+            const card = document.getElementById('card');
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(10px)';
 
-        function onMouseMove(event) {
-            mouseX = (event.clientX - window.innerWidth / 2) / 100;
-            mouseY = (event.clientY - window.innerHeight / 2) / 100;
-        }
+            setTimeout(() => {
+                const s = services[index];
+                document.getElementById('title').innerText = s.title;
+                document.getElementById('desc').innerText = s.desc;
+                document.getElementById('service-index').innerText = `0${index + 1}`;
+                document.getElementById('p-bar').style.width = `${(index + 1) * 25}%`;
+                
+                // Color Transition
+                core.material.color.setHex(s.color);
+                document.getElementById('bg-overlay').style.background = s.bg;
 
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+                
+                index = (index + 1) % services.length;
+            }, 300);
         }
 
         function animate() {
             requestAnimationFrame(animate);
 
-            targetX = mouseX * 0.5;
-            targetY = mouseY * 0.5;
+            // Smooth camera/scene lag
+            core.rotation.y += 0.005;
+            core.rotation.x += 0.002;
 
-            // Rotate core based on mouse
-            core.rotation.y += 0.01;
-            core.rotation.x += 0.005;
-            
-            scene.rotation.y += 0.1 * (targetX - scene.rotation.y);
-            scene.rotation.x += 0.1 * (targetY - scene.rotation.x);
+            scene.rotation.y += (mouseX * 0.2 - scene.rotation.y) * 0.05;
+            scene.rotation.x += (mouseY * 0.2 - scene.rotation.x) * 0.05;
 
-            // Rotate rings
-            rings.forEach((ring, i) => {
-                ring.rotation.z += 0.01 * (i + 1);
+            rings.forEach((r, i) => {
+                r.rotation.z += 0.001 * (i + 1);
             });
 
-            // Particles drift
-            particles.rotation.y += 0.001;
+            particles.rotation.y += 0.0005;
 
-            renderer.render(scene, camera);
+            composer.render();
         }
     </script>
 </body>
-                </html>
-                                                                                        
+    </html>
