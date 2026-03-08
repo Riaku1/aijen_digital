@@ -1,245 +1,173 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIJEN DIGITAL | 3D Engine v2.0</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Post-processing effect shaders -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&display=swap');
-        body { margin: 0; overflow: hidden; background-color: #000; color: white; font-family: 'Space Grotesk', sans-serif; }
-        canvas { display: block; }
-        .hud { pointer-events: none; position: absolute; inset: 0; padding: 3rem; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; }
-        .interactive { pointer-events: auto; }
-        .text-glow { text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
-        #bg-overlay { position: fixed; inset: 0; background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%); pointer-events: none; z-index: 1; transition: background 1s ease; }
-        .content-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(20px); opacity: 0; }
-        .content-card.active { transform: translateY(0); opacity: 1; }
-        .progress-bar { height: 2px; background: rgba(255,255,255,0.1); width: 100%; position: relative; overflow: hidden; }
-        .progress-inner { height: 100%; background: #3b82f6; width: 0%; transition: width 0.5s ease; }
-    </style>
-</head>
-<body>
+import React, { useState, useEffect, useRef } from 'react';
+import { Code, Cpu, Layers, ArrowRight, Mail, Terminal } from 'lucide-react';
 
-    <div id="bg-overlay"></div>
+export default function App() {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isScrolled, setIsScrolled] = useState(false);
+  const heroRef = useRef(null);
 
-    <div class="hud">
-        <!-- Top Nav -->
-        <div class="flex justify-between items-start animate-in fade-in slide-in-from-top-4 duration-1000">
-            <div class="interactive">
-                <div class="flex items-center gap-3 mb-1">
-                    <div class="w-8 h-8 bg-blue-600 flex items-center justify-center font-bold italic text-white">A</div>
-                    <h1 class="font-bold tracking-tighter text-xl uppercase">Aijen <span class="text-blue-500 font-light text-glow">Intelligence</span></h1>
-                </div>
-                <div class="text-[10px] text-zinc-500 tracking-[0.4em] uppercase font-bold">Formalized Tech Engine // UGANDA</div>
+  // Track scroll for navbar styling
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Track mouse movement for the 3D tilt effect in the hero section
+  const handleMouseMove = (e) => {
+    if (!heroRef.current) return;
+    const { left, top, width, height } = heroRef.current.getBoundingClientRect();
+    const x = (e.clientX - left) / width - 0.5;
+    const y = (e.clientY - top) / height - 0.5;
+    setMousePosition({ x, y });
+  };
+
+  // Calculate dynamic transform based on mouse position
+  const tiltStyle = {
+    transform: `perspective(1000px) rotateY(${mousePosition.x * 20}deg) rotateX(${mousePosition.y * -20}deg)`,
+    transition: 'transform 0.1s ease-out',
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-blue-500/30">
+      
+      {/* Navigation */}
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${isScrolled ? 'bg-slate-950/80 backdrop-blur-md border-slate-800 py-4' : 'bg-transparent border-transparent py-6'}`}>
+        <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
+          <div className="flex items-center space-x-2 group cursor-pointer">
+            <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
+              <Terminal size={18} className="text-white" />
             </div>
-            <div class="interactive flex gap-8 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-                <button class="hover:text-blue-400 transition-all cursor-pointer">Network Node</button>
-                <button class="hover:text-blue-400 transition-all cursor-pointer">VR Training Lab</button>
-                <div class="px-3 py-1 bg-blue-600/10 border border-blue-500/20 text-blue-400 rounded">v2.0_LIVE</div>
-            </div>
+            <span className="text-xl font-bold tracking-tight">Aijen<span className="text-blue-500">Digital</span></span>
+          </div>
+          <div className="hidden md:flex space-x-8 text-sm font-medium text-slate-300">
+            <a href="#services" className="hover:text-blue-400 transition-colors">Services</a>
+            <a href="#work" className="hover:text-blue-400 transition-colors">Work</a>
+            <a href="#about" className="hover:text-blue-400 transition-colors">About</a>
+          </div>
+          <button className="px-5 py-2.5 text-sm font-semibold rounded-full bg-white text-slate-900 hover:bg-blue-50 hover:scale-105 transition-all duration-300">
+            Start a Project
+          </button>
         </div>
+      </nav>
 
-        <!-- Main Display -->
-        <div class="flex justify-between items-end">
-            <div class="max-w-xl interactive content-card" id="card">
-                <div class="flex items-center gap-4 mb-4">
-                    <div id="service-index" class="text-blue-500 font-bold text-lg border-b-2 border-blue-600">01</div>
-                    <div class="progress-bar w-32"><div id="p-bar" class="progress-inner"></div></div>
-                </div>
-                <h2 class="text-6xl font-black mb-6 uppercase tracking-tighter leading-none" id="title">Initializing...</h2>
-                <p class="text-zinc-400 text-lg leading-relaxed mb-8" id="desc">Connecting to the Aijen Digital neural network. Standby for operational synchronization.</p>
-                <button onclick="cycle()" class="group flex items-center gap-4 bg-white/5 hover:bg-blue-600 border border-white/10 hover:border-blue-400 p-4 rounded-xl transition-all duration-300">
-                    <span class="text-xs font-bold tracking-widest uppercase">Next Pillar</span>
-                    <div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </div>
-                </button>
-            </div>
+      {/* Hero Section with Pseudo-3D Effect */}
+      <section 
+        ref={heroRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setMousePosition({ x: 0, y: 0 })}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 px-6"
+      >
+        {/* Background ambient glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-            <!-- Side Metrics -->
-            <div class="hidden md:block text-right space-y-6">
-                <div>
-                    <div class="text-[10px] text-zinc-600 uppercase font-bold tracking-widest mb-1">Compute Load</div>
-                    <div class="text-xl font-mono text-blue-400">88.4%_SYNC</div>
-                </div>
-                <div>
-                    <div class="text-[10px] text-zinc-600 uppercase font-bold tracking-widest mb-1">Operational Tier</div>
-                    <div class="text-xl font-mono">FORMALIZED_ENT</div>
-                </div>
-            </div>
+        <div className="container mx-auto flex flex-col items-center text-center z-10" style={tiltStyle}>
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700 backdrop-blur-sm mb-8">
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            <span className="text-xs font-medium text-slate-300 tracking-wide uppercase">Launching Next-Gen Web Experiences</span>
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tighter mb-6 leading-tight">
+            Digital reality, <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500">
+              engineered.
+            </span>
+          </h1>
+          
+          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mb-10 font-light leading-relaxed">
+            We build immersive, high-performance digital products for startups and forward-thinking brands. Fast, scalable, and unforgettable.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <button className="px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-semibold flex items-center space-x-2 transition-all duration-300 hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)]">
+              <span>View Our Work</span>
+              <ArrowRight size={18} />
+            </button>
+            <button className="px-8 py-4 rounded-full bg-slate-800 hover:bg-slate-700 text-white font-semibold transition-all duration-300 border border-slate-700 hover:border-slate-600">
+              Our Process
+            </button>
+          </div>
         </div>
+      </section>
+
+      {/* Services Section */}
+      <section id="services" className="py-24 bg-slate-900 border-y border-slate-800">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="mb-16 md:flex md:justify-between md:items-end">
+            <div className="max-w-xl">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">Core Capabilities</h2>
+              <p className="text-slate-400 text-lg">We combine cutting-edge tech with stunning design to solve complex business problems.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Service Card 1 */}
+            <div className="group p-8 rounded-3xl bg-slate-950 border border-slate-800 hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_40px_-15px_rgba(59,130,246,0.3)]">
+              <div className="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Code size={28} />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Modern Web Apps</h3>
+              <p className="text-slate-400 mb-6 leading-relaxed">Lightning-fast, highly scalable single-page applications built with React, Next.js, and Laravel APIs.</p>
+              <a href="#" className="inline-flex items-center text-sm font-semibold text-blue-400 hover:text-blue-300">
+                Learn more <ArrowRight size={16} className="ml-1" />
+              </a>
+            </div>
+
+            {/* Service Card 2 */}
+            <div className="group p-8 rounded-3xl bg-slate-950 border border-slate-800 hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_40px_-15px_rgba(168,85,247,0.3)]">
+              <div className="w-14 h-14 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Layers size={28} />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Immersive Interfaces</h3>
+              <p className="text-slate-400 mb-6 leading-relaxed">Engage users with 3D elements, fluid animations, and interactive scroll experiences that command attention.</p>
+              <a href="#" className="inline-flex items-center text-sm font-semibold text-purple-400 hover:text-purple-300">
+                Learn more <ArrowRight size={16} className="ml-1" />
+              </a>
+            </div>
+
+            {/* Service Card 3 */}
+            <div className="group p-8 rounded-3xl bg-slate-950 border border-slate-800 hover:border-indigo-500/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_40px_-15px_rgba(99,102,241,0.3)]">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Cpu size={28} />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Workflow Automation</h3>
+              <p className="text-slate-400 mb-6 leading-relaxed">Custom CI/CD pipelines, backend staging environments, and script automations to scale your operations.</p>
+              <a href="#" className="inline-flex items-center text-sm font-semibold text-indigo-400 hover:text-indigo-300">
+                Learn more <ArrowRight size={16} className="ml-1" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-blue-600/5 mix-blend-overlay pointer-events-none"></div>
+        <div className="container mx-auto px-6 text-center z-10 relative">
+          <h2 className="text-4xl md:text-6xl font-bold mb-6">Ready to build something <span className="text-blue-400">extraordinary?</span></h2>
+          <p className="text-xl text-slate-400 mb-10 max-w-2xl mx-auto">Whether you need a cutting-edge web platform or a robust automated pipeline, we're ready to execute.</p>
+          <button className="px-10 py-5 rounded-full bg-white text-slate-950 font-bold text-lg hover:bg-blue-50 hover:scale-105 transition-all duration-300 flex items-center space-x-3 mx-auto shadow-xl">
+            <Mail size={20} />
+            <span>Contact Our Team</span>
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-950 py-12 border-t border-slate-800 text-center md:text-left">
+        <div className="container mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center">
+          <div className="flex items-center space-x-2 mb-4 md:mb-0">
+            <Terminal size={20} className="text-blue-500" />
+            <span className="text-xl font-bold tracking-tight">Aijen<span className="text-blue-500">Digital</span></span>
+          </div>
+          <p className="text-slate-500 text-sm">
+            &copy; {new Date().getFullYear()} Aijen Digital. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
-
-    <script>
-        let scene, camera, renderer, composer, core, particles, rings = [];
-        let mouseX = 0, mouseY = 0;
-        let index = 0;
-
-        const services = [
-            { 
-                title: "Software Dev", 
-                desc: "Custom-built enterprise engines designed for scale. We bridge the gap between complex logic and business profit in the East African market.", 
-                color: 0x2563eb,
-                bg: 'radial-gradient(circle at center, rgba(37, 99, 235, 0.15) 0%, black 100%)'
-            },
-            { 
-                title: "Networking", 
-                desc: "Secure, high-speed LAN/WAN infrastructure. We provide networking audits and 99.9% uptime maintenance for corporate SMEs.", 
-                color: 0x3b82f6,
-                bg: 'radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, black 100%)'
-            },
-            { 
-                title: "Immersive VR", 
-                desc: "Proprietary VR training demos for the Ugandan market. We create interactive 3D environments for high-impact marketing and corporate visualization.", 
-                color: 0x60a5fa,
-                bg: 'radial-gradient(circle at center, rgba(96, 165, 250, 0.15) 0%, black 100%)'
-            },
-            { 
-                title: "Data Systems", 
-                desc: "Advanced database management and analytics. We turn fragmented IT systems into actionable, data-driven decision engines.", 
-                color: 0x1d4ed8,
-                bg: 'radial-gradient(circle at center, rgba(29, 78, 216, 0.15) 0%, black 100%)'
-            }
-        ];
-
-        window.onload = function() {
-            init();
-            animate();
-            cycle(); // Initial load
-            document.getElementById('card').classList.add('active');
-        };
-
-        function init() {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 5;
-
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            document.body.appendChild(renderer.domElement);
-
-            // Post Processing for Bloom (Glow)
-            const renderScene = new THREE.RenderPass(scene, camera);
-            const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-            bloomPass.threshold = 0.2;
-            bloomPass.strength = 1.2;
-            bloomPass.radius = 0.5;
-
-            composer = new THREE.EffectComposer(renderer);
-            composer.addPass(renderScene);
-            composer.addPass(bloomPass);
-
-            // Core Engine (Icosahedron)
-            const coreGeom = new THREE.IcosahedronGeometry(1.5, 1);
-            const coreMat = new THREE.MeshPhongMaterial({ 
-                color: 0x2563eb, 
-                wireframe: true,
-                transparent: true,
-                opacity: 0.8
-            });
-            core = new THREE.Mesh(coreGeom, coreMat);
-            scene.add(core);
-
-            // Inner core glow sphere
-            const innerGeom = new THREE.SphereGeometry(0.6, 32, 32);
-            const innerMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const innerCore = new THREE.Mesh(innerGeom, innerMat);
-            core.add(innerCore);
-
-            // Rings
-            for(let i = 0; i < 3; i++) {
-                const ringGeom = new THREE.TorusGeometry(2.5 + (i * 0.5), 0.02, 16, 100);
-                const ringMat = new THREE.MeshBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.3 });
-                const ring = new THREE.Mesh(ringGeom, ringMat);
-                ring.rotation.x = Math.random() * Math.PI;
-                ring.rotation.y = Math.random() * Math.PI;
-                rings.push(ring);
-                scene.add(ring);
-            }
-
-            // Starfield
-            const starGeom = new THREE.BufferGeometry();
-            const starCount = 3000;
-            const posArray = new Float32Array(starCount * 3);
-            for(let i = 0; i < starCount * 3; i++) {
-                posArray[i] = (Math.random() - 0.5) * 20;
-            }
-            starGeom.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-            const starMat = new THREE.PointsMaterial({ size: 0.008, color: 0x444444 });
-            particles = new THREE.Points(starGeom, starMat);
-            scene.add(particles);
-
-            // Lights
-            const pLight = new THREE.PointLight(0xffffff, 1, 100);
-            pLight.position.set(5, 5, 5);
-            scene.add(pLight);
-            scene.add(new THREE.AmbientLight(0x222222));
-
-            document.addEventListener('mousemove', (e) => {
-                mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-                mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-            });
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                composer.setSize(window.innerWidth, window.innerHeight);
-            });
-        }
-
-        function cycle() {
-            const card = document.getElementById('card');
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(10px)';
-
-            setTimeout(() => {
-                const s = services[index];
-                document.getElementById('title').innerText = s.title;
-                document.getElementById('desc').innerText = s.desc;
-                document.getElementById('service-index').innerText = `0${index + 1}`;
-                document.getElementById('p-bar').style.width = `${(index + 1) * 25}%`;
-                
-                // Color Transition
-                core.material.color.setHex(s.color);
-                document.getElementById('bg-overlay').style.background = s.bg;
-
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-                
-                index = (index + 1) % services.length;
-            }, 300);
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Smooth camera/scene lag
-            core.rotation.y += 0.005;
-            core.rotation.x += 0.002;
-
-            scene.rotation.y += (mouseX * 0.2 - scene.rotation.y) * 0.05;
-            scene.rotation.x += (mouseY * 0.2 - scene.rotation.x) * 0.05;
-
-            rings.forEach((r, i) => {
-                r.rotation.z += 0.001 * (i + 1);
-            });
-
-            particles.rotation.y += 0.0005;
-
-            composer.render();
-        }
-    </script>
-</body>
-    </html>
+  );
+}
