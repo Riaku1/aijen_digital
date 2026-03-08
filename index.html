@@ -7,16 +7,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --accent: #f0f0f0; /* Cloud Dancer approximation */
-            --bg-dark: #0a0a0a;
-            --card-bg: #161616;
+            --accent: #f0f0f0; 
+            --bg-dark: #050505;
+            --card-bg: #111111;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-dark);
             color: white;
             overflow-x: hidden;
@@ -26,8 +26,8 @@
         /* Slide & Fade Animations */
         .reveal {
             opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+            transform: translateY(40px);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .reveal.active {
@@ -39,159 +39,197 @@
         .stagger-2 { transition-delay: 0.2s; }
         .stagger-3 { transition-delay: 0.3s; }
 
-        /* Custom Glassmorphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
+        /* Abstract Digital Sphere (The "Hero Image") */
+        .sphere-container {
+            position: absolute;
+            right: -10%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 500px;
+            height: 500px;
+            z-index: -1;
+            filter: blur(1px);
+        }
+
+        .sphere {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%);
+            border-radius: 50%;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            animation: float 8s ease-in-out infinite;
+            backdrop-filter: blur(40px);
+        }
+
+        .sphere::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(20px);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.05); }
         }
 
         /* Navigation Style */
-        nav {
-            transition: background 0.3s ease;
-        }
         nav.scrolled {
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(5, 5, 5, 0.85);
+            backdrop-filter: blur(20px);
+            padding-top: 1rem;
+            padding-bottom: 1rem;
         }
 
-        /* Bento Grid Specifics */
         .bento-card {
-            transition: transform 0.4s ease, border-color 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            background: #0f0f0f;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .bento-card:hover {
-            transform: scale(1.02);
-            border-color: rgba(255, 255, 255, 0.3);
+            background: #151515;
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-5px);
         }
 
-        /* Subtle Hero Gradient */
-        .hero-glow {
-            position: absolute;
-            top: -10%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60vw;
-            height: 60vw;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
 
     <!-- Navigation -->
-    <nav class="fixed w-full z-50 px-6 py-4 flex justify-between items-center">
-        <div class="text-2xl font-extrabold tracking-tighter">AIJEN<span class="text-gray-500">.</span></div>
-        <div class="hidden md:flex space-x-8 text-sm font-medium uppercase tracking-widest text-gray-400">
-            <a href="#about" class="hover:text-white transition">About</a>
-            <a href="#services" class="hover:text-white transition">Services</a>
-            <a href="#work" class="hover:text-white transition">Work</a>
+    <nav class="fixed w-full z-50 px-6 py-6 flex justify-between items-center transition-all duration-300">
+        <div class="text-2xl font-extrabold tracking-tighter">AIJEN<span class="text-white/30">.</span></div>
+        <div class="hidden md:flex space-x-10 text-[11px] font-bold uppercase tracking-[0.2em] text-gray-500">
+            <a href="#about" class="hover:text-white transition">Approach</a>
+            <a href="#services" class="hover:text-white transition">Expertise</a>
+            <a href="#work" class="hover:text-white transition">Studio</a>
             <a href="#contact" class="hover:text-white transition">Contact</a>
         </div>
-        <button class="px-5 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200 transition">
-            Let's Talk
+        <button class="px-6 py-2 border border-white/20 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white hover:text-black transition-all">
+            Get in touch
         </button>
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative min-h-screen flex flex-col justify-center items-center text-center px-6 pt-20 overflow-hidden">
-        <div class="hero-glow"></div>
-        <h1 class="reveal stagger-1 text-5xl md:text-8xl font-extrabold leading-tight mb-6 max-w-5xl">
-            We Build <span class="text-gray-500">Digital</span> Identities That Matter.
-        </h1>
-        <p class="reveal stagger-2 text-gray-400 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
-            Aijen Digital is a creative studio specialized in high-end branding, 
-            interactive web design, and digital growth strategies for the next generation of startups.
-        </p>
-        <div class="reveal stagger-3 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-            <a href="#services" class="px-8 py-4 border border-white rounded-full font-semibold hover:bg-white hover:text-black transition duration-300">
-                Explore Services
-            </a>
-            <a href="#work" class="px-8 py-4 bg-white text-black rounded-full font-semibold hover:bg-gray-200 transition duration-300">
-                View Portfolio
-            </a>
+    <section class="relative min-h-screen flex flex-col justify-center px-6 md:px-20 overflow-hidden">
+        <div class="sphere-container hidden lg:block">
+            <div class="sphere"></div>
+        </div>
+        
+        <div class="max-w-4xl">
+            <div class="reveal stagger-1 inline-block mb-6 px-4 py-1 border border-white/10 rounded-full bg-white/5 text-[10px] font-bold tracking-[0.3em] uppercase">
+                Digital Evolution Studio
+            </div>
+            <h1 class="reveal stagger-1 text-6xl md:text-[100px] font-extrabold leading-[0.9] tracking-tighter mb-8">
+                Defining the <br> <span class="text-white/40">Next Edge.</span>
+            </h1>
+            <p class="reveal stagger-2 text-gray-500 text-lg md:text-xl max-w-xl mb-12 leading-relaxed">
+                We craft high-fidelity digital products and brands for forward-thinking companies. At Aijen, we merge technical precision with aesthetic intelligence.
+            </p>
+            <div class="reveal stagger-3 flex items-center space-x-8">
+                <a href="#services" class="group flex items-center space-x-4">
+                    <span class="text-sm font-bold uppercase tracking-widest">Explore Capabilities</span>
+                    <span class="w-12 h-12 flex items-center justify-center rounded-full border border-white/20 group-hover:bg-white group-hover:text-black transition-all">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </span>
+                </a>
+            </div>
         </div>
     </section>
 
-    <!-- Services Section (Bento Grid) -->
-    <section id="services" class="py-24 px-6 md:px-20 bg-[#0f0f0f]">
+    <!-- Capabilities Section (Bento Grid) -->
+    <section id="services" class="py-32 px-6 md:px-20 border-t border-white/5">
         <div class="max-w-7xl mx-auto">
-            <div class="reveal mb-16 text-center md:text-left">
-                <h2 class="text-3xl md:text-5xl font-bold mb-4">Our Expertise</h2>
-                <p class="text-gray-500">Turning intent into execution through strategy and design.</p>
+            <div class="reveal mb-20 grid md:grid-cols-2 items-end gap-10">
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tighter">Our Digital <br> Ecosystem</h2>
+                <p class="text-gray-500 text-lg max-w-sm">From architectural strategy to pixel-perfect deployment, we handle the full spectrum of digital existence.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Large Feature -->
-                <div class="reveal stagger-1 md:col-span-2 glass rounded-3xl p-8 bento-card flex flex-col justify-between min-h-[350px]">
-                    <div>
-                        <div class="text-sm uppercase tracking-widest text-gray-500 mb-4">01. Strategy</div>
-                        <h3 class="text-3xl font-bold mb-4">Market Positioning & Growth</h3>
-                        <p class="text-gray-400 max-w-md">We dig deep into your business to create a roadmap tailored for sustainable growth and premium pricing power.</p>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- Branding Card -->
+                <div class="reveal stagger-1 md:col-span-8 bento-card rounded-[2rem] p-10 flex flex-col justify-between min-h-[400px] relative overflow-hidden">
+                    <div class="relative z-10">
+                        <span class="text-[10px] font-black tracking-widest uppercase opacity-30">Strategy & Identity</span>
+                        <h3 class="text-3xl font-bold mt-4 mb-4">Core Branding</h3>
+                        <p class="text-gray-500 max-w-sm">Defining your voice in a crowded digital landscape through methodical positioning and visual storytelling.</p>
                     </div>
-                    <div class="mt-8">
-                        <span class="text-xs border border-gray-700 px-3 py-1 rounded-full text-gray-500">RESEARCH</span>
-                        <span class="text-xs border border-gray-700 px-3 py-1 rounded-full text-gray-500 ml-2">DATA ANALYSIS</span>
+                    <!-- Abstract Shape Overlay -->
+                    <div class="absolute right-0 bottom-0 opacity-10 pointer-events-none">
+                        <svg width="400" height="400" viewBox="0 0 200 200">
+                            <path fill="white" d="M44.7,-76.4C58.3,-69.2,70.1,-57.4,77.6,-43.3C85.2,-29.2,88.5,-12.7,86.6,3.3C84.7,19.3,77.6,34.8,67.6,48.1C57.6,61.4,44.7,72.5,29.8,77.8C14.8,83.1,-2.2,82.5,-18.4,77.5C-34.7,72.5,-50.2,63.1,-62.4,50.1C-74.6,37.1,-83.5,20.5,-85.4,3.2C-87.3,-14.2,-82.2,-32.3,-71.4,-46.8C-60.6,-61.3,-44.1,-72.1,-28.4,-78.2C-12.8,-84.3,2.1,-85.7,18.4,-82.4C34.7,-79.1,52.4,-71.1,44.7,-76.4Z" transform="translate(100 100)" />
+                        </svg>
                     </div>
                 </div>
 
-                <!-- Small Feature -->
-                <div class="reveal stagger-2 glass rounded-3xl p-8 bento-card flex flex-col justify-between">
+                <!-- Web Card -->
+                <div class="reveal stagger-2 md:col-span-4 bento-card rounded-[2rem] p-10 flex flex-col justify-between">
                     <div>
-                        <div class="text-sm uppercase tracking-widest text-gray-500 mb-4">02. Design</div>
-                        <h3 class="text-2xl font-bold mb-4">Visual Identity</h3>
+                        <span class="text-[10px] font-black tracking-widest uppercase opacity-30">Development</span>
+                        <h3 class="text-3xl font-bold mt-4 mb-4">Web Labs</h3>
+                        <p class="text-gray-500 text-sm">High-performance React & Next.js applications built for scale.</p>
                     </div>
-                    <p class="text-gray-400 text-sm">Logos, color palettes, and typography that make your brand unforgettable.</p>
+                    <div class="flex space-x-2 mt-6">
+                        <div class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center">
+                            <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                        </div>
+                        <div class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center">
+                            <div class="w-1.5 h-1.5 rounded-full bg-white opacity-40"></div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Small Feature -->
-                <div class="reveal stagger-1 glass rounded-3xl p-8 bento-card flex flex-col justify-between">
+                <!-- Product Design Card -->
+                <div class="reveal stagger-1 md:col-span-4 bento-card rounded-[2rem] p-10 flex flex-col justify-between">
                     <div>
-                        <div class="text-sm uppercase tracking-widest text-gray-500 mb-4">03. Web</div>
-                        <h3 class="text-2xl font-bold mb-4">UI/UX Revamp</h3>
+                        <span class="text-[10px] font-black tracking-widest uppercase opacity-30">UI/UX</span>
+                        <h3 class="text-2xl font-bold mt-4 mb-4">Interface Design</h3>
                     </div>
-                    <p class="text-gray-400 text-sm">Frictionless digital experiences that guide users to convert.</p>
+                    <p class="text-gray-500 text-sm italic">"Simplicity is the ultimate sophistication."</p>
                 </div>
 
-                <!-- Large Feature -->
-                <div class="reveal stagger-2 md:col-span-2 glass rounded-3xl p-8 bento-card flex flex-col md:flex-row justify-between items-end">
-                    <div class="mb-6 md:mb-0">
-                        <div class="text-sm uppercase tracking-widest text-gray-500 mb-4">04. Content</div>
-                        <h3 class="text-3xl font-bold mb-4">Branded Assets</h3>
-                        <p class="text-gray-400 max-w-sm">From marketing collaterals to social templates, we ensure visual consistency at scale.</p>
+                <!-- Growth Card -->
+                <div class="reveal stagger-2 md:col-span-8 bento-card rounded-[2rem] p-10 flex items-center justify-between group">
+                    <div>
+                        <span class="text-[10px] font-black tracking-widest uppercase opacity-30">Scale</span>
+                        <h3 class="text-4xl font-bold mt-4">Digital Growth</h3>
                     </div>
-                    <button class="p-4 bg-white rounded-full text-black hover:scale-110 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                    </button>
+                    <div class="w-20 h-20 rounded-full bg-white flex items-center justify-center group-hover:scale-110 transition duration-500">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Contact CTA -->
-    <section id="contact" class="py-32 px-6 text-center">
+    <!-- Footer / Contact -->
+    <section id="contact" class="py-40 px-6 text-center">
         <div class="reveal max-w-4xl mx-auto">
-            <h2 class="text-5xl md:text-7xl font-bold mb-8 italic">Ready to accelerate?</h2>
-            <p class="text-gray-400 text-lg mb-12">Let's talk about what you're building.</p>
-            <div class="inline-block p-[2px] rounded-full bg-gradient-to-r from-gray-800 via-white to-gray-800">
-                <button class="bg-black text-white px-12 py-6 rounded-full text-xl font-bold hover:bg-white hover:text-black transition-all duration-500">
-                    hello@aijen.digital
-                </button>
+            <h2 class="text-5xl md:text-8xl font-extrabold tracking-tighter mb-12">Let's build <br> the <span class="text-white/20">unseen.</span></h2>
+            <div class="inline-flex flex-col items-center">
+                <a href="mailto:hello@aijen.digital" class="text-2xl md:text-4xl font-light hover:text-white/50 transition">hello@aijen.digital</a>
+                <div class="mt-8 flex space-x-6 text-[10px] font-black tracking-[0.3em] uppercase opacity-40">
+                    <a href="#" class="hover:opacity-100">Instagram</a>
+                    <a href="#" class="hover:opacity-100">LinkedIn</a>
+                    <a href="#" class="hover:opacity-100">Dribbble</a>
+                </div>
             </div>
         </div>
     </section>
-
-    <!-- Footer -->
-    <footer class="py-12 border-t border-gray-900 px-6 text-center">
-        <p class="text-gray-600 text-sm">© 2026 Aijen Digital. All rights reserved. Built for the future.</p>
-    </footer>
 
     <script>
         // Scroll Reveal Logic
         const observerOptions = {
-            threshold: 0.15
+            threshold: 0.1
         };
 
         const observer = new IntersectionObserver((entries) => {
@@ -214,10 +252,13 @@
             }
         });
 
-        // Initial Trigger for Hero
-        window.addEventListener('load', () => {
-            document.querySelectorAll('.hero-section .reveal').forEach(el => el.classList.add('active'));
+        // Parallax effect for the sphere
+        window.addEventListener('mousemove', (e) => {
+            const sphere = document.querySelector('.sphere');
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+            sphere.style.transform = `translate(${moveX}px, ${moveY}px)`;
         });
     </script>
 </body>
-  </html>
+                    </html>
